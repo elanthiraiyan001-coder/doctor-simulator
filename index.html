@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - Velora OPD Engine</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #07090e;
+            --card-bg: rgba(17, 24, 39, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-emerald: #10b981;
+            --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+            --accent-cyan: #06b6d4;
+            --accent-cyan-glow: rgba(6, 182, 212, 0.25);
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #a855f7;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-glow: 0 0 25px rgba(6, 182, 212, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+            padding: 24px;
+        }
+
+        /* Top Doctor Header Bar */
+        .doctor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            padding: 16px 28px;
+            border-radius: var(--radius-xl);
+            margin-bottom: 24px;
+        }
+
+        .doctor-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .doctor-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-emerald));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+            color: #000;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .doctor-info h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .doctor-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Simulation Controls Bar */
+        .sim-controls-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            padding: 6px 12px;
+            border-radius: 14px;
+        }
+
+        .btn-sim-ctrl {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-sim-ctrl:hover { background: rgba(255, 255, 255, 0.15); }
+        .btn-sim-ctrl.active {
+            background: var(--accent-cyan);
+            color: #000;
+            border-color: var(--accent-cyan);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            padding: 8px 14px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-badge .lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .stat-badge .val {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        .live-clock-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-emerald);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* VIP Doctor Notification Banner */
+        .vip-banner {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            padding: 16px 24px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slide-down 0.4s ease-out;
+        }
+
+        .vip-banner.hidden { display: none; }
+
+        .vip-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .vip-btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-vip-acc {
+            background: var(--accent-amber);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-vip-acc:hover { transform: translateY(-1px); filter: brightness(1.1); }
+
+        .btn-vip-def {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid var(--card-border);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Pending Break Banner */
+        .pending-break-banner {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: var(--accent-amber);
+            padding: 12px 20px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .pending-break-banner.hidden { display: none; }
+
+        .btn-cancel-break {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid var(--card-border);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* Main Workspace Layout */
+        .doctor-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 24px;
+            flex: 1;
+        }
+
+        /* Active Patient Hero Card */
+        .active-cabin-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .cabin-status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .cabin-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 800;
+        }
+
+        .status-tag-clockedout {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: var(--accent-rose);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-tag-active {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-emerald);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-tag-idle {
+            background: rgba(148, 163, 184, 0.15);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-tag-break {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--accent-amber);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .patient-focus-box {
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        .token-hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-cyan), #3b82f6);
+            color: #000;
+            font-weight: 900;
+            font-size: 32px;
+            padding: 8px 24px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .patient-hero-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .patient-hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .h-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--card-border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Big Consultation Timer Display */
+        .timer-display-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            padding: 18px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+        }
+
+        .timer-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 46px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+        }
+
+        .timer-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Large Primary Action Buttons */
+        .doctor-actions-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 14px;
+        }
+
+        .btn-doctor-primary {
+            background: linear-gradient(135deg, var(--accent-emerald), #059669);
+            color: #000;
+            border: none;
+            padding: 18px 24px;
+            border-radius: var(--radius-lg);
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-doctor-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+        }
+
+        .btn-doctor-primary.clockin-mode {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: #000;
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.7); }
+            100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); }
+        }
+
+        .btn-doctor-primary.break-mode {
+            background: linear-gradient(135deg, var(--accent-amber), #d97706);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-doctor-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+            padding: 18px 20px;
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-doctor-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-doctor-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 14px 20px;
+            border-radius: var(--radius-lg);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-doctor-warning:hover {
+            background: rgba(245, 158, 11, 0.25);
+        }
+
+        /* Next Up Lobby Buffer Panel (Right Column) */
+        .nextup-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .panel-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .lobby-count-badge {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .nextup-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nextup-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .nextup-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .nextup-item.pos-1 {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), transparent);
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .pos-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+
+        .pos-1 .pos-badge {
+            background: var(--accent-emerald);
+            color: #000;
+        }
+
+        .nextup-info h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .nextup-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .tag-emergency { background: rgba(244, 63, 94, 0.2); color: #fca5a5; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+        .tag-vip { background: rgba(245, 158, 11, 0.2); color: #fcd34d; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+        .tag-diag { background: rgba(6, 182, 212, 0.2); color: #67e8f9; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+        .tag-restroom { background: rgba(168, 85, 247, 0.2); color: #e9d5ff; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+
+        /* Break Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal-overlay.hidden { display: none; }
+
+        .modal-card {
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            padding: 32px;
+            border-radius: var(--radius-xl);
+            width: 420px;
+            text-align: center;
+        }
+
+        .modal-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+        .modal-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
+
+        .break-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn-break-opt {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--card-border);
+            color: #fff;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-break-opt:hover {
+            background: var(--accent-amber);
+            color: #000;
+            border-color: var(--accent-amber);
+        }
+
+        .btn-modal-close {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Doctor Header Bar -->
+    <header class="doctor-header">
+        <div class="doctor-profile">
+            <div class="doctor-avatar">DS</div>
+            <div class="doctor-info">
+                <h2>Dr. Sarah Sharma</h2>
+                <p>Cardiologist • Cabin 1 • <strong style="color:var(--accent-cyan);">Shift: 09:00 AM - 12:00 PM</strong></p>
+            </div>
+        </div>
+
+        <!-- Speed Simulation Controls (1x, 5x, 15x, Pause, Reset) -->
+        <div class="sim-controls-group">
+            <button class="btn-sim-ctrl" id="btn-doc-play-pause">⏸️ Pause</button>
+            <button class="btn-sim-ctrl active" id="btn-doc-sp-1x">1x</button>
+            <button class="btn-sim-ctrl" id="btn-doc-sp-5x">5x</button>
+            <button class="btn-sim-ctrl" id="btn-doc-sp-15x">15x</button>
+            <button class="btn-sim-ctrl" id="btn-doc-reset">🔄 Reset</button>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat-badge">
+                <div class="lbl">Baseline ACT</div>
+                <div class="val">10.0m</div>
+            </div>
+            <div class="stat-badge">
+                <div class="lbl">Rolling ACT</div>
+                <div class="val" id="doc-rolling-act">10.0m</div>
+            </div>
+            <div class="stat-badge">
+                <div class="lbl">Seen Today</div>
+                <div class="val" id="doc-completed-count">0</div>
+            </div>
+            <div class="live-clock-badge">
+                <span class="live-dot"></span>
+                <span id="doc-clock">08:40 AM</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- VIP Doctor Notification Banner -->
+    <div class="vip-banner hidden" id="doc-vip-banner">
+        <div class="vip-text">
+            <span>👑</span>
+            <span>VIP Patient Arrival: <strong id="doc-vip-name">Mr. Vikramaditya (Govt Ref)</strong></span>
+        </div>
+        <div class="vip-btn-group">
+            <button class="btn-vip-acc" id="btn-doc-vip-approve">Admit Next (Position #1)</button>
+            <button class="btn-vip-def" id="btn-doc-vip-defer">Defer to Regular</button>
+        </div>
+    </div>
+
+    <!-- Pending Queued Break Banner -->
+    <div class="pending-break-banner hidden" id="doc-pending-break-banner">
+        <span>☕ <span id="doc-queued-break-mins">15</span>-Minute Break Queued: Doctor will take break immediately after current patient finishes!</span>
+        <button class="btn-cancel-break" id="btn-doc-cancel-queued-break">Cancel Queued Break</button>
+    </div>
+
+    <!-- Main Workspace Grid -->
+    <main class="doctor-grid">
+
+        <!-- Active Patient Hero Card -->
+        <section class="active-cabin-card">
+            <div class="cabin-status-header">
+                <span class="cabin-title">Current Cabin State</span>
+                <span class="status-tag-clockedout" id="doc-status-badge">DOCTOR NOT CLOCKED IN</span>
+            </div>
+
+            <div class="patient-focus-box">
+                <div id="doc-active-content">
+                    <span class="token-hero-badge" style="background:rgba(255,255,255,0.1); color:var(--text-muted);">🚪</span>
+                    <h1 class="patient-hero-name" style="color:var(--text-muted);">Doctor Away</h1>
+                    <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;">
+                        Consultation Shift Hours: <strong>09:00 AM - 12:00 PM</strong>.<br>
+                        Click <strong>"I'M IN"</strong> below when Doctor arrives in Cabin 1 to activate patient calling!
+                    </p>
+                </div>
+
+                <div class="timer-display-box">
+                    <div class="timer-val" id="doc-timer">00:00</div>
+                    <div class="timer-subtext" id="doc-timer-sub">Consultation Duration</div>
+                </div>
+            </div>
+
+            <div class="doctor-actions-grid">
+                <button class="btn-doctor-primary clockin-mode" id="btn-doc-call-next">
+                    <span>🚪</span> <span id="btn-doc-call-text">I'M IN (CLOCK IN TO CABIN)</span>
+                </button>
+
+                <button class="btn-doctor-secondary" id="btn-doc-send-lab">
+                    <span>🧪</span> Refer to Lab / X-Ray
+                </button>
+
+                <button class="btn-doctor-warning" id="btn-doc-break">
+                    <span>☕</span> Schedule Break
+                </button>
+
+                <button class="btn-doctor-secondary" id="btn-doc-late" style="color:var(--accent-rose); border-color:rgba(244,63,94,0.3);">
+                    <span>⏰</span> Report Delay
+                </button>
+            </div>
+        </section>
+
+        <!-- Next Up Lobby Buffer Panel (Right Column) -->
+        <section class="nextup-panel">
+            <div class="panel-header">
+                <h3>👥 Verified & Present Outside Cabin</h3>
+                <span class="lobby-count-badge" id="doc-lobby-count">0 Verified Lobby</span>
+            </div>
+
+            <ul class="nextup-list" id="doc-nextup-list">
+                <!-- Dynamically Rendered Top Verified Present Patients -->
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Doctor Break Selection Modal -->
+    <div class="modal-overlay hidden" id="doc-break-modal">
+        <div class="modal-card">
+            <h3>☕ Schedule Doctor Break</h3>
+            <p>Select duration. The break will begin immediately after your current active consultation finishes.</p>
+
+            <div class="break-grid">
+                <button class="btn-break-opt" data-break="5">5 Mins</button>
+                <button class="btn-break-opt" data-break="10">10 Mins</button>
+                <button class="btn-break-opt" data-break="15">15 Mins</button>
+            </div>
+
+            <button class="btn-modal-close" id="btn-close-doc-break">Cancel</button>
+        </div>
+    </div>
+
+    <!-- UNIFIED WALL-CLOCK SHARED ENGINE WITH 3 CONSECUTIVE PATIENT SAMPLE ROLLING ACT ENGINE -->
+    <script>
+        (function() {
+            const STORAGE_KEY = 'VELORA_OPD_SHARED_STATE_V7';
+
+            function getInitialDefaultState() {
+                let s = 31200; // EXACT START TIME: 08:40:00 AM (31200s)
+                return {
+                    simBaseTime: s,
+                    realBaseTimestamp: Date.now(),
+                    isRunning: true,
+                    speedMultiplier: 1,
+                    doctorState: {
+                        isClockedIn: false,
+                        cabinStatus: 'NOT_CLOCKED_IN',
+                        activePatient: null,
+                        consultStartSimSec: 0,
+                        rollingACT: 10.0,
+                        fastStreakCount: 0,
+                        slowStreakCount: 0,
+                        completedCount: 0,
+                        pendingBreakMins: 0,
+                        breakRemainingSec: 0,
+                        breakStartSimSec: 0,
+                        delayMins: 0,
+                        pendingVIPAlert: null
+                    },
+                    patients: [
+                        { token: 'P-1', name: 'Rajesh Kumar', type: 'APP', reportingSec: s, etaSec: s + 20*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
+                        { token: 'P-2', name: 'Ananya Roy', type: 'APP', reportingSec: s + 10*60, etaSec: s + 30*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
+                        { token: 'P-3', name: 'Suresh Patel', type: 'APP', reportingSec: s + 20*60, etaSec: s + 40*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
+                        { token: 'P-4', name: 'Kavita Singh', type: 'APP', reportingSec: s + 30*60, etaSec: s + 50*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
+                        { token: 'P-ELAN', name: 'Elan (Test Patient)', type: 'APP', reportingSec: s + 40*60, etaSec: s + 60*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
+                        { token: 'P-5', name: 'Deepak Verma', type: 'APP', reportingSec: s + 50*60, etaSec: s + 70*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' }
+                    ],
+                    walkinCounter: 5,
+                    emergencyCounter: 1,
+                    vipCounter: 1,
+                    lastUpdated: Date.now()
+                };
+            }
+
+            let state = loadState();
+
+            function loadState() {
+                try {
+                    let raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) return JSON.parse(raw);
+                } catch(e) {}
+                let def = getInitialDefaultState();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(def));
+                return def;
+            }
+
+            function saveState() {
+                state.lastUpdated = Date.now();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                render();
+            }
+
+            function getLiveSimSeconds() {
+                if (!state.isRunning) return state.simBaseTime;
+                let elapsedRealSec = (Date.now() - state.realBaseTimestamp) / 1000;
+                return state.simBaseTime + (elapsedRealSec * (state.speedMultiplier || 1));
+            }
+
+            const dom = {
+                clock: document.getElementById('doc-clock'),
+                rollingAct: document.getElementById('doc-rolling-act'),
+                completedCount: document.getElementById('doc-completed-count'),
+                statusBadge: document.getElementById('doc-status-badge'),
+                activeContent: document.getElementById('doc-active-content'),
+                timer: document.getElementById('doc-timer'),
+                timerSub: document.getElementById('doc-timer-sub'),
+                lobbyCount: document.getElementById('doc-lobby-count'),
+                nextupList: document.getElementById('doc-nextup-list'),
+                
+                btnPlayPause: document.getElementById('btn-doc-play-pause'),
+                btnSp1x: document.getElementById('btn-doc-sp-1x'),
+                btnSp5x: document.getElementById('btn-doc-sp-5x'),
+                btnSp15x: document.getElementById('btn-doc-sp-15x'),
+                btnReset: document.getElementById('btn-doc-reset'),
+
+                btnCallNext: document.getElementById('btn-doc-call-next'),
+                btnCallText: document.getElementById('btn-doc-call-text'),
+                btnSendLab: document.getElementById('btn-doc-send-lab'),
+                btnBreak: document.getElementById('btn-doc-break'),
+                btnLate: document.getElementById('btn-doc-late'),
+
+                pendingBreakBanner: document.getElementById('doc-pending-break-banner'),
+                queuedBreakMins: document.getElementById('doc-queued-break-mins'),
+                btnCancelQueuedBreak: document.getElementById('btn-doc-cancel-queued-break'),
+
+                breakModal: document.getElementById('doc-break-modal'),
+                btnCloseBreak: document.getElementById('btn-close-doc-break'),
+                vipBanner: document.getElementById('doc-vip-banner'),
+                vipName: document.getElementById('doc-vip-name'),
+                btnVipApprove: document.getElementById('btn-doc-vip-approve'),
+                btnVipDefer: document.getElementById('btn-doc-vip-defer')
+            };
+
+            function formatHM(sec) {
+                let h = Math.floor(sec / 3600) % 12 || 12;
+                let m = Math.floor((sec % 3600) / 60);
+                let ampm = sec >= 43200 ? 'PM' : 'AM';
+                return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+            }
+
+            function getVerifiedLobbyPatients() {
+                let lobbyPatients = state.patients.filter(p => p.status === 'VERIFIED_IN_LOBBY');
+                
+                function getPrioRank(p) {
+                    if (p.prio === 'EMERGENCY' || p.type === 'EMERGENCY') return 1;
+                    if (p.prio === 'VIP_APPROVED') return 2; // ONLY APPROVED VIPS GET RANK 2!
+                    if (p.prio === 'DIAGNOSTIC_RETURN') return 3;
+                    if (p.prio === 'RESTROOM_RETURN') return 4;
+                    return 5; // DEFERRED VIPS AND REGULAR PATIENTS GET RANK 5!
+                }
+                
+                return lobbyPatients.sort((a, b) => getPrioRank(a) - getPrioRank(b));
+            }
+
+            // COMPLETE ROLLING ACT ENGINE WITH 3 CONSECUTIVE PATIENT SAMPLE THRESHOLD RULE
+            function updateRollingACTOnConsultationComplete(completedPatient, currentSimSec) {
+                let ds = state.doctorState;
+                if (!completedPatient || !ds.consultStartSimSec) return;
+
+                // EXEMPTION 1 & 2: Emergency & VIP Normalization (1.5x expected baseline)
+                let actualConsultDurationMins = (currentSimSec - ds.consultStartSimSec) / 60;
+                let isSpecial = (completedPatient.type === 'EMERGENCY' || completedPatient.type === 'VIP' || completedPatient.prio === 'EMERGENCY' || completedPatient.prio === 'VIP');
+                
+                if (isSpecial) {
+                    actualConsultDurationMins = actualConsultDurationMins / 1.5;
+                }
+
+                // EXEMPTION 3: Restroom and Lab returns are excluded from dragging down baseline ACT
+                if (completedPatient.prio === 'RESTROOM_RETURN' || completedPatient.prio === 'DIAGNOSTIC_RETURN') {
+                    return; // Excluded from skewing Rolling ACT
+                }
+
+                let currentACT = ds.rollingACT || 10.0;
+                let minThreshold = 0.5 * currentACT; // 0.5 * ACT (e.g. 5 mins for 10m ACT)
+                let maxThreshold = 1.5 * currentACT; // 1.5 * ACT (e.g. 15 mins for 10m ACT)
+
+                ds.fastStreakCount = ds.fastStreakCount || 0;
+                ds.slowStreakCount = ds.slowStreakCount || 0;
+
+                if (actualConsultDurationMins <= minThreshold) {
+                    ds.fastStreakCount++;
+                    ds.slowStreakCount = 0; // Reset slow counter
+                } else if (actualConsultDurationMins >= maxThreshold) {
+                    ds.slowStreakCount++;
+                    ds.fastStreakCount = 0; // Reset fast counter
+                } else {
+                    // Standard Pace Visit (0.5x ACT to 1.5x ACT): Reset streak counters & update standard moving average
+                    ds.fastStreakCount = 0;
+                    ds.slowStreakCount = 0;
+                    let newACT = (0.7 * currentACT) + (0.3 * actualConsultDurationMins);
+                    ds.rollingACT = Math.max(4.0, Math.min(30.0, newACT));
+                    return;
+                }
+
+                // 3 CONSECUTIVE PATIENT SAMPLE THRESHOLD TRIGGER
+                if (ds.fastStreakCount >= 3) {
+                    // 3 Fast Patients in a row -> Shift Rolling ACT downwards!
+                    let shiftedACT = (0.6 * currentACT) + (0.4 * minThreshold);
+                    ds.rollingACT = Math.max(4.0, shiftedACT);
+                    ds.fastStreakCount = 0; // Reset after trigger
+                } else if (ds.slowStreakCount >= 3) {
+                    // 3 Slow Patients in a row -> Shift Rolling ACT upwards!
+                    let shiftedACT = (0.6 * currentACT) + (0.4 * maxThreshold);
+                    ds.rollingACT = Math.min(30.0, shiftedACT);
+                    ds.slowStreakCount = 0; // Reset after trigger
+                }
+            }
+
+            function render() {
+                let currentSimSec = getLiveSimSeconds();
+                dom.clock.textContent = formatHM(currentSimSec);
+                dom.rollingAct.textContent = `${(state.doctorState.rollingACT || 10.0).toFixed(1)}m`;
+                dom.completedCount.textContent = state.doctorState.completedCount || 0;
+
+                // Speed buttons UI
+                [dom.btnSp1x, dom.btnSp5x, dom.btnSp15x].forEach(b => b.classList.remove('active'));
+                if (state.speedMultiplier === 1) dom.btnSp1x.classList.add('active');
+                if (state.speedMultiplier === 5) dom.btnSp5x.classList.add('active');
+                if (state.speedMultiplier === 15) dom.btnSp15x.classList.add('active');
+                dom.btnPlayPause.textContent = state.isRunning ? '⏸️ Pause' : '▶️ Resume';
+
+                let verifiedQueue = getVerifiedLobbyPatients();
+                let ds = state.doctorState;
+
+                // Pending VIP alert
+                if (ds.pendingVIPAlert) {
+                    dom.vipName.textContent = ds.pendingVIPAlert.name;
+                    dom.vipBanner.classList.remove('hidden');
+                } else {
+                    dom.vipBanner.classList.add('hidden');
+                }
+
+                // Pending Break Banner
+                if (ds.pendingBreakMins > 0) {
+                    dom.queuedBreakMins.textContent = ds.pendingBreakMins;
+                    dom.pendingBreakBanner.classList.remove('hidden');
+                } else {
+                    dom.pendingBreakBanner.classList.add('hidden');
+                }
+
+                // PRE-CLOCK-IN STATE ("I'M IN" FEATURE)
+                if (!ds.isClockedIn) {
+                    dom.statusBadge.textContent = 'DOCTOR NOT CLOCKED IN';
+                    dom.statusBadge.className = 'status-tag-clockedout';
+                    dom.timer.textContent = '00:00';
+                    dom.timerSub.textContent = 'Consultation Hours: 09:00 AM - 12:00 PM';
+
+                    dom.activeContent.innerHTML = `
+                        <span class="token-hero-badge" style="background:rgba(255,255,255,0.1); color:var(--text-muted);">🚪</span>
+                        <h1 class="patient-hero-name" style="color:var(--accent-cyan);">Doctor Away</h1>
+                        <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;">
+                            Consultation Shift Hours: <strong>09:00 AM - 12:00 PM</strong>.<br>
+                            Click <strong>"I'M IN (CLOCK IN)"</strong> below when Doctor arrives in Cabin 1 to activate patient calling!
+                        </p>
+                    `;
+
+                    dom.btnCallNext.className = 'btn-doctor-primary clockin-mode';
+                    dom.btnCallText.textContent = "🚪 I'M IN (CLOCK IN TO CABIN 1)";
+                } 
+                // ACTIVE BREAK STATE
+                else if (ds.cabinStatus === 'BREAK') {
+                    let breakElapsedSec = currentSimSec - (ds.breakStartSimSec || currentSimSec);
+                    let breakRemSec = Math.max(0, (ds.breakTotalSec || 900) - breakElapsedSec);
+                    let bMins = Math.floor(breakRemSec / 60);
+                    let bSecs = Math.floor(breakRemSec % 60);
+                    dom.timer.textContent = `${String(bMins).padStart(2, '0')}:${String(bSecs).padStart(2, '0')}`;
+                    dom.timerSub.textContent = 'Break Countdown Remaining';
+                    dom.statusBadge.textContent = 'ON BREAK';
+                    dom.statusBadge.className = 'status-tag-break';
+                    
+                    dom.activeContent.innerHTML = `
+                        <span class="token-hero-badge" style="background:var(--accent-amber); color:#000;">☕</span>
+                        <h1 class="patient-hero-name" style="color:var(--accent-amber);">Doctor on Break</h1>
+                        <p style="color:var(--text-secondary); font-size:14px;">Queue paused. Resumes in ${bMins}m ${bSecs}s.</p>
+                    `;
+
+                    dom.btnCallNext.className = 'btn-doctor-primary break-mode';
+                    dom.btnCallText.textContent = '▶️ END BREAK EARLY & CALL NEXT';
+                } 
+                // ACTIVE CONSULTATION STATE
+                else if (ds.activePatient && ds.cabinStatus === 'IN_CABIN') {
+                    let consultElapsedSec = Math.max(0, currentSimSec - (ds.consultStartSimSec || currentSimSec));
+                    let mins = Math.floor(consultElapsedSec / 60);
+                    let secs = Math.floor(consultElapsedSec % 60);
+                    dom.timer.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                    dom.timerSub.textContent = 'Consultation Elapsed (Minutes:Seconds)';
+                    dom.statusBadge.textContent = 'IN CONSULTATION';
+                    dom.statusBadge.className = 'status-tag-active';
+
+                    dom.activeContent.innerHTML = `
+                        <span class="token-hero-badge">${ds.activePatient.token}</span>
+                        <h1 class="patient-hero-name">${ds.activePatient.name}</h1>
+                        <div class="patient-hero-badges">
+                            <span class="h-badge">${ds.activePatient.type === 'APP' ? '📱 App' : (ds.activePatient.type === 'VIP' ? '👑 VIP' : (ds.activePatient.type === 'EMERGENCY' ? '🚨 Emergency' : '📋 Walk-in'))}</span>
+                            <span class="h-badge">✓ Verified in Lobby</span>
+                        </div>
+                    `;
+
+                    if (ds.pendingBreakMins > 0) {
+                        dom.btnCallNext.className = 'btn-doctor-primary break-mode';
+                        dom.btnCallText.textContent = `☕ FINISH VISIT & START BREAK (${ds.pendingBreakMins}m)`;
+                    } else {
+                        dom.btnCallNext.className = 'btn-doctor-primary';
+                        dom.btnCallText.textContent = '🔔 FINISH VISIT & CALL NEXT PATIENT';
+                    }
+                } 
+                // CABIN IDLE (DOCTOR CLOCKED IN)
+                else {
+                    dom.statusBadge.textContent = 'CABIN IDLE';
+                    dom.statusBadge.className = 'status-tag-idle';
+                    dom.timer.textContent = '00:00';
+                    dom.timerSub.textContent = 'Consultation Duration';
+                    
+                    let nextP = verifiedQueue[0];
+                    let nextTokenStr = nextP ? nextP.token : 'None';
+
+                    dom.activeContent.innerHTML = `
+                        <span class="token-hero-badge" style="background:rgba(255,255,255,0.1); color:var(--text-muted);">${nextTokenStr}</span>
+                        <h1 class="patient-hero-name" style="color:var(--text-muted);">${nextP ? nextP.name : 'No Lobby Arrival'}</h1>
+                        <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;">
+                            ${nextP ? `Press 'CALL NEXT PATIENT' to admit ${nextTokenStr} from lobby.` : 'Waiting for Receptionist to click "Admit & Wait in Lobby" at desk...'}
+                        </p>
+                    `;
+
+                    dom.btnCallNext.className = 'btn-doctor-primary';
+                    dom.btnCallText.textContent = nextP ? `🔔 CALL NEXT PATIENT (${nextTokenStr})` : `🔔 NO PATIENTS VERIFIED IN LOBBY`;
+                }
+
+                // Render Next Up Buffer (Strictly Verified Patients Only)
+                dom.lobbyCount.textContent = `${verifiedQueue.length} Verified in Lobby`;
+                dom.nextupList.innerHTML = '';
+
+                if (verifiedQueue.length === 0) {
+                    dom.nextupList.innerHTML = `<li style="padding:16px; color:var(--text-muted); font-size:13px; text-align:center;">No patients checked-in to lobby yet.<br><small style="color:var(--accent-amber);">Receptionist must click "Admit & Wait in Lobby" at desk first.</small></li>`;
+                } else {
+                    verifiedQueue.slice(0, 5).forEach((p, idx) => {
+                        let li = document.createElement('li');
+                        li.className = `nextup-item ${idx === 0 ? 'pos-1' : ''}`;
+                        
+                        let badgeHtml = '';
+                        if (p.prio === 'EMERGENCY' || p.type === 'EMERGENCY') badgeHtml = `<span class="tag-emergency">🚨 Emergency</span>`;
+                        else if (p.prio === 'VIP_APPROVED' || p.type === 'VIP') badgeHtml = `<span class="tag-vip">👑 VIP</span>`;
+                        else if (p.prio === 'DIAGNOSTIC_RETURN') badgeHtml = `<span class="tag-diag">🧪 Diagnostic</span>`;
+                        else if (p.prio === 'RESTROOM_RETURN') badgeHtml = `<span class="tag-restroom">🚽 Restroom</span>`;
+                        else badgeHtml = `<span style="color:var(--accent-emerald); font-size:11px; font-weight:700;">✓ In Lobby</span>`;
+
+                        li.innerHTML = `
+                            <div class="item-left">
+                                <span class="pos-badge">${idx + 1}</span>
+                                <div class="nextup-info">
+                                    <h4>${p.token} - ${p.name}</h4>
+                                    <p>${p.type === 'APP' ? 'App' : p.type} • Verified in Lobby</p>
+                                </div>
+                            </div>
+                            <div>${badgeHtml}</div>
+                        `;
+                        dom.nextupList.appendChild(li);
+                    });
+                }
+            }
+
+            // PRIMARY BUTTON ACTION HANDLER (WITH FULL ROLLING ACT ENGINE!)
+            dom.btnCallNext.addEventListener('click', () => {
+                state = loadState();
+                let ds = state.doctorState;
+                let currentSimSec = getLiveSimSeconds();
+
+                // 1. DOCTOR "I'M IN" CLOCK-IN FIRST!
+                if (!ds.isClockedIn) {
+                    ds.isClockedIn = true;
+                    ds.cabinStatus = 'IDLE';
+                    saveState();
+                    alert("🟢 DOCTOR ARRIVED & CLOCKED IN!\n\nDr. Sarah Sharma is now in Cabin 1. Patient calling is now ACTIVE!");
+                    return;
+                }
+
+                // 2. BREAK RESUME
+                if (ds.cabinStatus === 'BREAK') {
+                    ds.breakRemainingSec = 0;
+                    ds.cabinStatus = 'IDLE';
+                    let verifiedQueue = getVerifiedLobbyPatients();
+                    if (verifiedQueue.length > 0) {
+                        ds.activePatient = verifiedQueue.shift();
+                        state.patients = state.patients.filter(p => p.token !== ds.activePatient.token);
+                        ds.activePatient.status = 'IN_CABIN';
+                        state.patients.push(ds.activePatient);
+                        ds.consultStartSimSec = currentSimSec;
+                        ds.cabinStatus = 'IN_CABIN';
+                    }
+                    saveState();
+                    return;
+                }
+
+                // 3. FINISH CONSULTATION & START QUEUED BREAK
+                if (ds.activePatient && ds.pendingBreakMins > 0) {
+                    updateRollingACTOnConsultationComplete(ds.activePatient, currentSimSec);
+                    ds.completedCount++;
+                    state.patients = state.patients.filter(p => p.token !== ds.activePatient.token);
+                    ds.activePatient = null;
+                    let bDuration = ds.pendingBreakMins;
+                    ds.pendingBreakMins = 0;
+                    ds.cabinStatus = 'BREAK';
+                    ds.breakTotalSec = bDuration * 60;
+                    ds.breakRemainingSec = bDuration * 60;
+                    ds.breakStartSimSec = currentSimSec;
+                    saveState();
+                    return;
+                }
+
+                // 4. CALL NEXT VERIFIED PATIENT (STAMPS CONSULT START TIME LIVE!)
+                let verifiedQueue = getVerifiedLobbyPatients();
+
+                if (verifiedQueue.length > 0) {
+                    if (ds.activePatient) {
+                        updateRollingACTOnConsultationComplete(ds.activePatient, currentSimSec);
+                        ds.completedCount++;
+                        state.patients = state.patients.filter(p => p.token !== ds.activePatient.token);
+                    }
+                    ds.activePatient = verifiedQueue[0];
+                    ds.activePatient.status = 'IN_CABIN';
+                    ds.consultStartSimSec = currentSimSec;
+                    ds.cabinStatus = 'IN_CABIN';
+                    saveState();
+                } else if (ds.activePatient) {
+                    updateRollingACTOnConsultationComplete(ds.activePatient, currentSimSec);
+                    ds.completedCount++;
+                    state.patients = state.patients.filter(p => p.token !== ds.activePatient.token);
+                    ds.activePatient = null;
+                    ds.cabinStatus = 'IDLE';
+                    saveState();
+                } else {
+                    alert("⚠️ No verified patients in lobby! Receptionist must click 'Admit & Wait in Lobby' at the reception desk first.");
+                }
+            });
+
+            dom.btnVipApprove.addEventListener('click', () => {
+                state = loadState();
+                let alertObj = state.doctorState.pendingVIPAlert;
+                let targetToken = alertObj ? alertObj.token : null;
+                let p = state.patients.find(x => (targetToken && x.token === targetToken) || x.type === 'VIP');
+                if (p) {
+                    p.prio = 'VIP_APPROVED';
+                    p.status = 'VERIFIED_IN_LOBBY';
+                }
+                state.doctorState.pendingVIPAlert = null;
+                saveState();
+                alert(`👑 VIP Priority Approved for ${p ? p.token : 'VIP'}!\nPatient is now verified in lobby at Position #1 priority.`);
+            });
+
+            dom.btnVipDefer.addEventListener('click', () => {
+                state = loadState();
+                let alertObj = state.doctorState.pendingVIPAlert;
+                let targetToken = alertObj ? alertObj.token : null;
+                let p = state.patients.find(x => (targetToken && x.token === targetToken) || x.type === 'VIP');
+                if (p) {
+                    p.prio = 'REGULAR';
+                    p.status = 'VERIFIED_IN_LOBBY';
+                    // Move to the VERY BACK of the queue so he is NOT Position #1!
+                    state.patients = state.patients.filter(x => x.token !== p.token);
+                    state.patients.push(p);
+                }
+                state.doctorState.pendingVIPAlert = null;
+                saveState();
+                alert(`⏱️ VIP Status Deferred for ${p ? p.token : 'VIP'}.\nPatient moved to the BACK of the regular queue.`);
+            });
+
+            dom.btnCancelQueuedBreak.addEventListener('click', () => {
+                state = loadState();
+                state.doctorState.pendingBreakMins = 0;
+                saveState();
+            });
+
+            dom.btnSendLab.addEventListener('click', () => {
+                state = loadState();
+                let ds = state.doctorState;
+                let currentSimSec = getLiveSimSeconds();
+                if (ds.activePatient) {
+                    updateRollingACTOnConsultationComplete(ds.activePatient, currentSimSec);
+                    let pLab = ds.activePatient;
+                    pLab.status = 'IN_DIAGNOSTICS';
+                    ds.activePatient = null;
+                    ds.cabinStatus = 'IDLE';
+                    saveState();
+                    alert(`Token ${pLab.token} (${pLab.name}) referred to radiology lab for X-Ray. Cabin opened for next patient!`);
+                } else {
+                    alert("No active patient in cabin to send to lab!");
+                }
+            });
+
+            dom.btnBreak.addEventListener('click', () => {
+                dom.breakModal.classList.remove('hidden');
+            });
+
+            dom.btnCloseBreak.addEventListener('click', () => {
+                dom.breakModal.classList.add('hidden');
+            });
+
+            let breakOpts = dom.breakModal.querySelectorAll('.btn-break-opt');
+            breakOpts.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state = loadState();
+                    let ds = state.doctorState;
+                    let mins = parseInt(btn.getAttribute('data-break'), 10);
+                    let currentSimSec = getLiveSimSeconds();
+
+                    if (ds.activePatient && ds.cabinStatus === 'IN_CABIN') {
+                        ds.pendingBreakMins = mins;
+                    } else {
+                        ds.cabinStatus = 'BREAK';
+                        ds.breakTotalSec = mins * 60;
+                        ds.breakRemainingSec = mins * 60;
+                        ds.breakStartSimSec = currentSimSec;
+                    }
+                    dom.breakModal.classList.add('hidden');
+                    saveState();
+                });
+            });
+
+            dom.btnLate.addEventListener('click', () => {
+                let delay = prompt("Enter doctor delay duration in minutes:", "15");
+                if (delay) {
+                    state = loadState();
+                    state.doctorState.cabinStatus = 'LATE';
+                    state.doctorState.delayMins = parseInt(delay, 10) || 15;
+                    saveState();
+                    alert(`Doctor delay of ${delay} minutes reported. Emergency push notification broadcasted to waiting patients.`);
+                }
+            });
+
+            // Simulation Controls Handlers
+            dom.btnPlayPause.addEventListener('click', () => {
+                state = loadState();
+                let currentSimSec = getLiveSimSeconds();
+                state.simBaseTime = currentSimSec;
+                state.realBaseTimestamp = Date.now();
+                state.isRunning = !state.isRunning;
+                saveState();
+            });
+
+            dom.btnSp1x.addEventListener('click', () => setSpeed(1));
+            dom.btnSp5x.addEventListener('click', () => setSpeed(5));
+            dom.btnSp15x.addEventListener('click', () => setSpeed(15));
+
+            function setSpeed(sp) {
+                state = loadState();
+                let currentSimSec = getLiveSimSeconds();
+                state.simBaseTime = currentSimSec;
+                state.realBaseTimestamp = Date.now();
+                state.speedMultiplier = sp;
+                saveState();
+            }
+
+            dom.btnReset.addEventListener('click', () => {
+                localStorage.removeItem(STORAGE_KEY);
+                state = getInitialDefaultState();
+                saveState();
+            });
+
+            // Real-Time Render Poller (100ms)
+            setInterval(() => {
+                state = loadState();
+                render();
+            }, 100);
+
+            render();
+        })();
+    </script>
+</body>
+</html>
