@@ -634,14 +634,56 @@
             color: #000;
             border-color: var(--accent-amber);
         }
+        .rx-tests-grid label { cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-        .btn-modal-close {
-            background: transparent;
-            color: var(--text-muted);
-            border: none;
+        .rx-footer-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid var(--card-border);
+            padding-top: 18px;
+        }
+
+        .btn-rx-action {
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 800;
             font-size: 13px;
             cursor: pointer;
+            transition: all 0.2s;
         }
+
+        .btn-rx-action.print {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            color: #fff;
+        }
+        .btn-rx-action.print:hover { background: rgba(255, 255, 255, 0.18); }
+
+        .btn-rx-action.finish {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-emerald));
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+        }
+        .btn-rx-action.finish:hover { transform: translateY(-1px); filter: brightness(1.1); }
+
+        .btn-open-rx-trigger {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2));
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            color: var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-open-rx-trigger:hover { background: var(--accent-cyan); color: #000; }
     </style>
 </head>
 <body>
@@ -775,6 +817,90 @@
             </div>
 
             <button class="btn-modal-close" id="btn-close-doc-break">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Interactive E-Prescription Pad Modal -->
+    <div class="modal-overlay hidden" id="doc-rx-modal">
+        <div class="rx-modal-card">
+            <div class="rx-header">
+                <div>
+                    <h2 style="font-family:'Outfit',sans-serif; color:var(--accent-cyan); font-size:22px;">🏥 Velora Health OPD — E-Prescription Pad</h2>
+                    <p style="font-size:12px; color:var(--text-secondary);">Dr. Sarah Sharma, M.D. (Cardiology / General OPD) • Reg. #MD-48291 • Cabin 1</p>
+                </div>
+                <button class="btn-modal-close" id="btn-close-rx">✖</button>
+            </div>
+
+            <!-- Auto-Populated Patient Banner -->
+            <div class="rx-patient-banner" id="rx-patient-banner-info">
+                <span>Token: P-1 • Rajesh Kumar</span>
+                <span style="color:var(--accent-emerald);">Consultation Time: 04:25</span>
+            </div>
+
+            <!-- Vitals Entry Grid -->
+            <div class="rx-section-title">🩺 Patient Vitals & Triage</div>
+            <div class="rx-vitals-grid">
+                <div><label>BP (mmHg)</label><input type="text" id="rx-bp" value="120/80"></div>
+                <div><label>Pulse (bpm)</label><input type="text" id="rx-pulse" value="72"></div>
+                <div><label>Temp (°F)</label><input type="text" id="rx-temp" value="98.6"></div>
+                <div><label>Weight (kg)</label><input type="text" id="rx-weight" value="68"></div>
+            </div>
+
+            <!-- Complaints & Diagnosis -->
+            <div class="rx-section-title">📋 Chief Complaints & Clinical Diagnosis</div>
+            <div style="margin-bottom:12px;">
+                <input type="text" class="rx-input-full" id="rx-diagnosis" placeholder="e.g. Acute Upper Respiratory Infection / Routine Checkup">
+            </div>
+
+            <!-- Rx Medicine Builder -->
+            <div class="rx-section-title">💊 Rx Medication Builder</div>
+            <table class="rx-med-table">
+                <thead>
+                    <tr>
+                        <th style="width:35%;">Medicine Name</th>
+                        <th>Dosage</th>
+                        <th>Duration</th>
+                        <th>Instructions</th>
+                    </tr>
+                </thead>
+                <tbody id="rx-med-tbody">
+                    <tr>
+                        <td><input type="text" value="Paracetamol 500mg"></td>
+                        <td>
+                            <select>
+                                <option>1-0-1 (BD)</option>
+                                <option>1-1-1 (TDS)</option>
+                                <option>0-0-1 (HS)</option>
+                                <option>1-0-0 (OD)</option>
+                            </select>
+                        </td>
+                        <td><input type="text" value="5 Days"></td>
+                        <td>
+                            <select>
+                                <option>After Food</option>
+                                <option>Before Food</option>
+                                <option>With Water</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn-add-rx-row" id="btn-add-rx-line">➕ Add Medicine Line</button>
+
+            <!-- Diagnostic Test Referrals -->
+            <div class="rx-section-title">🧪 Diagnostic Tests & Referrals</div>
+            <div class="rx-tests-grid">
+                <label><input type="checkbox" id="rx-test-cbc"> CBC Blood Count</label>
+                <label><input type="checkbox" id="rx-test-xray"> Chest X-Ray</label>
+                <label><input type="checkbox" id="rx-test-ecg"> ECG</label>
+                <label><input type="checkbox" id="rx-test-lipid"> Lipid Profile</label>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="rx-footer-actions">
+                <button class="btn-rx-action print" id="btn-print-rx">🖨️ Print E-Prescription Slip</button>
+                <button class="btn-rx-action finish" id="btn-save-rx-finish">🔔 Save Rx & Call Next Patient</button>
+            </div>
         </div>
     </div>
 
@@ -1065,7 +1191,17 @@
                             <span class="h-badge">${ds.activePatient.type === 'APP' ? '📱 App' : (ds.activePatient.type === 'VIP' ? '👑 VIP' : (ds.activePatient.type === 'EMERGENCY' ? '🚨 Emergency' : '📋 Walk-in'))}</span>
                             <span class="h-badge">✓ Verified in Lobby</span>
                         </div>
+                        <div>
+                            <button class="btn-open-rx-trigger" id="btn-open-rx">📝 Open E-Prescription Pad & Clinical Notes</button>
+                        </div>
                     `;
+
+                    setTimeout(() => {
+                        let btnRx = document.getElementById('btn-open-rx');
+                        if (btnRx) {
+                            btnRx.onclick = openRxModal;
+                        }
+                    }, 50);
 
                     if (ds.pendingBreakMins > 0) {
                         dom.btnCallNext.className = 'btn-doctor-primary break-mode';
@@ -1326,6 +1462,76 @@
                 state = getInitialDefaultState();
                 saveState();
             });
+
+            // E-PRESCRIPTION MODAL LOGIC
+            const rxModal = document.getElementById('doc-rx-modal');
+            const btnCloseRx = document.getElementById('btn-close-rx');
+            const btnAddRxLine = document.getElementById('btn-add-rx-line');
+            const btnPrintRx = document.getElementById('btn-print-rx');
+            const btnSaveRxFinish = document.getElementById('btn-save-rx-finish');
+            const rxTbody = document.getElementById('rx-med-tbody');
+            const rxPatientBanner = document.getElementById('rx-patient-banner-info');
+
+            function openRxModal() {
+                state = loadState();
+                let ds = state.doctorState;
+                if (!ds.activePatient) return;
+                
+                let currentSimSec = getLiveSimSeconds();
+                let consultElapsedSec = Math.max(0, currentSimSec - (ds.consultStartSimSec || currentSimSec));
+                let mins = Math.floor(consultElapsedSec / 60);
+                let secs = Math.floor(consultElapsedSec % 60);
+
+                rxPatientBanner.innerHTML = `
+                    <span>Token: <strong style="color:var(--accent-cyan);">${ds.activePatient.token}</strong> • <strong>${ds.activePatient.name}</strong> (${ds.activePatient.type})</span>
+                    <span style="color:var(--accent-emerald);">Consultation Time: ${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}</span>
+                `;
+                rxModal.classList.remove('hidden');
+            }
+
+            if (btnCloseRx) {
+                btnCloseRx.onclick = () => rxModal.classList.add('hidden');
+            }
+
+            if (btnAddRxLine) {
+                btnAddRxLine.onclick = () => {
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><input type="text" placeholder="e.g. Amoxicillin 500mg"></td>
+                        <td>
+                            <select>
+                                <option>1-0-1 (BD)</option>
+                                <option>1-1-1 (TDS)</option>
+                                <option>0-0-1 (HS)</option>
+                                <option>1-0-0 (OD)</option>
+                            </select>
+                        </td>
+                        <td><input type="text" value="5 Days"></td>
+                        <td>
+                            <select>
+                                <option>After Food</option>
+                                <option>Before Food</option>
+                                <option>With Water</option>
+                            </select>
+                        </td>
+                    `;
+                    rxTbody.appendChild(tr);
+                };
+            }
+
+            if (btnPrintRx) {
+                btnPrintRx.onclick = () => {
+                    alert("🖨️ Printing E-Prescription Slip for Patient...\n\nPrescription saved and sent to thermal printer!");
+                };
+            }
+
+            if (btnSaveRxFinish) {
+                btnSaveRxFinish.onclick = () => {
+                    rxModal.classList.add('hidden');
+                    let btnCall = document.getElementById('btn-doc-call-next');
+                    if (btnCall) btnCall.click();
+                };
+            }
 
             // Real-Time Render Poller (100ms)
             setInterval(() => {
