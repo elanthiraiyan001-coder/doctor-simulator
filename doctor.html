@@ -734,6 +734,154 @@
             margin-right: 6px;
         }
         .btn-preset-pill:hover { background: var(--accent-amber); color: #000; }
+
+        /* REAL HOSPITAL EHR WORKSTATION STYLES */
+        .ehr-workstation {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(9, 13, 22, 0.98));
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(6, 182, 212, 0.15);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 20px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .ehr-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        .ehr-hospital-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            letter-spacing: 0.5px;
+        }
+
+        .ehr-doc-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .ehr-mrn-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: var(--accent-emerald);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .ehr-vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ehr-vital-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ehr-vital-icon {
+            font-size: 20px;
+        }
+
+        .ehr-vital-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .ehr-vital-val {
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .ehr-symptom-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 8px 0 14px 0;
+        }
+
+        .ehr-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ehr-chip:hover, .ehr-chip.active {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .ehr-rx-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .ehr-rx-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ehr-rx-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .ehr-rx-dose-tag {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .ehr-signature-stamp {
+            border-top: 1px dashed var(--card-border);
+            margin-top: 18px;
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
@@ -1237,87 +1385,121 @@
                     dom.activeContent.innerHTML = `
                         <span class="token-hero-badge">${ds.activePatient.token}</span>
                         <h1 class="patient-hero-name">${ds.activePatient.name}</h1>
-                        <div class="patient-hero-badges" style="margin-bottom:14px;">
+                        <div class="patient-hero-badges" style="margin-bottom:16px;">
                             <span class="h-badge">${ds.activePatient.type === 'APP' ? '📱 App' : (ds.activePatient.type === 'VIP' ? '👑 VIP' : (ds.activePatient.type === 'EMERGENCY' ? '🚨 Emergency' : '📋 Walk-in'))}</span>
                             <span class="h-badge">✓ Verified in Lobby</span>
                         </div>
 
-                        <!-- SEAMLESS INLINE CLINICAL SUITE -->
-                        <div class="inline-rx-container">
-                            <!-- Vitals Bar -->
-                            <div class="inline-vitals-row">
-                                <span>🩺 <strong>BP:</strong> <input type="text" value="120/80" class="mini-vital-input"></span>
-                                <span>💓 <strong>Pulse:</strong> <input type="text" value="72" class="mini-vital-input"> bpm</span>
-                                <span>🌡️ <strong>Temp:</strong> <input type="text" value="98.6" class="mini-vital-input"> °F</span>
-                                <span>💨 <strong>SpO2:</strong> <input type="text" value="99%" class="mini-vital-input"></span>
-                                <span>⚖️ <strong>Weight:</strong> <input type="text" value="68" class="mini-vital-input"> kg</span>
+                        <!-- REAL HOSPITAL OPD EHR WORKSTATION SHEET -->
+                        <div class="ehr-workstation">
+                            <!-- EHR Banner -->
+                            <div class="ehr-banner">
+                                <div>
+                                    <div class="ehr-hospital-title">🏥 VELORA OPD HEALTHCARE — CLINICAL EHR SHEET</div>
+                                    <div class="ehr-doc-sub">Dr. Sarah Sharma, M.D. (Reg. #MD-48291) • General OPD / Cardiology • Cabin 1</div>
+                                </div>
+                                <span class="ehr-mrn-badge">MRN-2026-${Math.floor(1000 + Math.random()*9000)}</span>
                             </div>
 
-                            <!-- Doctor Observations -->
-                            <div style="margin-bottom:10px; text-align:left;">
-                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">👁️ Doctor Observations & Physical Findings</label>
-                                <input type="text" class="rx-input-full" id="inline-obs" placeholder="Type doctor's observations (e.g. Throat redness, mild fever for 2 days, clear lung sounds)...">
+                            <!-- 4 Real Vitals Dashboard Cards -->
+                            <div class="ehr-vitals-grid">
+                                <div class="ehr-vital-card">
+                                    <span class="ehr-vital-icon">🩸</span>
+                                    <div>
+                                        <div class="ehr-vital-label">Blood Pressure</div>
+                                        <div class="ehr-vital-val">120/80 <span style="font-size:10px; color:var(--accent-emerald);">Optimal</span></div>
+                                    </div>
+                                </div>
+                                <div class="ehr-vital-card">
+                                    <span class="ehr-vital-icon">❤️</span>
+                                    <div>
+                                        <div class="ehr-vital-label">Heart Rate</div>
+                                        <div class="ehr-vital-val">72 bpm <span style="font-size:10px; color:var(--accent-emerald);">Normal</span></div>
+                                    </div>
+                                </div>
+                                <div class="ehr-vital-card">
+                                    <span class="ehr-vital-icon">🌡️</span>
+                                    <div>
+                                        <div class="ehr-vital-label">Body Temp</div>
+                                        <div class="ehr-vital-val">98.6 °F <span style="font-size:10px; color:var(--accent-emerald);">Afebrile</span></div>
+                                    </div>
+                                </div>
+                                <div class="ehr-vital-card">
+                                    <span class="ehr-vital-icon">🫁</span>
+                                    <div>
+                                        <div class="ehr-vital-label">SpO2 Oxygen</div>
+                                        <div class="ehr-vital-val">99% <span style="font-size:10px; color:var(--accent-emerald);">Room Air</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Clinical Symptom Chips -->
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">💬 Clinical Symptoms & Quick Findings</label>
+                                <div class="ehr-symptom-chips">
+                                    <span class="ehr-chip" onclick="toggleSymptomChip(this, 'Throat redness & difficulty swallowing')">+ Throat Redness</span>
+                                    <span class="ehr-chip" onclick="toggleSymptomChip(this, 'Mild fever for 2 days')">+ Mild Fever</span>
+                                    <span class="ehr-chip" onclick="toggleSymptomChip(this, 'Dry cough & nasal congestion')">+ Dry Cough</span>
+                                    <span class="ehr-chip" onclick="toggleSymptomChip(this, 'Frontal headache & fatigue')">+ Headache</span>
+                                    <span class="ehr-chip" onclick="toggleSymptomChip(this, 'Body ache & mild chills')">+ Body Ache</span>
+                                </div>
+                            </div>
+
+                            <!-- Doctor Observations Text Box -->
+                            <div style="margin-bottom:14px;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">👁️ Doctor Physical Examination Notes</label>
+                                <textarea class="rx-input-full" id="inline-obs" rows="2" style="resize:vertical; font-family:inherit;" placeholder="Type doctor's observations or click symptom chips above..."></textarea>
                             </div>
 
                             <!-- Diagnosis -->
-                            <div style="margin-bottom:10px; text-align:left;">
+                            <div style="margin-bottom:14px;">
                                 <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">📋 Clinical Diagnosis</label>
                                 <input type="text" class="rx-input-full" id="inline-diag" placeholder="e.g. Acute Upper Respiratory Tract Infection">
                             </div>
 
                             <!-- 1-Click Fast Presets -->
-                            <div style="margin-bottom:10px; text-align:left;">
-                                <label style="font-size:11px; font-weight:800; color:var(--accent-amber); text-transform:uppercase;">⚡ 1-Click Presets: </label>
-                                <button class="btn-preset-pill" onclick="applyPreset('FEVER')">FEVER & COLD</button>
-                                <button class="btn-preset-pill" onclick="applyPreset('GASTRIC')">GASTRIC</button>
-                                <button class="btn-preset-pill" onclick="applyPreset('INFECTION')">INFECTION</button>
+                            <div style="margin-bottom:14px;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-amber); text-transform:uppercase;">⚡ 1-Click Clinical Presets: </label>
+                                <button class="btn-preset-pill" onclick="applyPreset('FEVER')">🤒 Acute Fever & Cold</button>
+                                <button class="btn-preset-pill" onclick="applyPreset('GASTRIC')">🤢 Gastritis / GERD</button>
+                                <button class="btn-preset-pill" onclick="applyPreset('INFECTION')">🩺 Respiratory Infection</button>
                             </div>
 
-                            <!-- Rx Medication Table -->
-                            <div style="margin-bottom:10px; text-align:left;">
-                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">💊 Rx Medications</label>
-                                <table class="rx-med-table" style="margin-top:4px;">
-                                    <thead>
-                                        <tr>
-                                            <th>Medicine Name</th>
-                                            <th>Dosage</th>
-                                            <th>Duration</th>
-                                            <th>Instructions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="inline-rx-tbody">
-                                        <tr>
-                                            <td><input type="text" value="Paracetamol 500mg"></td>
-                                            <td>
-                                                <select>
-                                                    <option selected>1-0-1 (BD)</option>
-                                                    <option>1-1-1 (TDS)</option>
-                                                    <option>0-0-1 (HS)</option>
-                                                    <option>1-0-0 (OD)</option>
-                                                </select>
-                                            </td>
-                                            <td><input type="text" value="5 Days"></td>
-                                            <td>
-                                                <select>
-                                                    <option selected>After Food</option>
-                                                    <option>Before Food</option>
-                                                    <option>With Water</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <button class="btn-add-rx-row" onclick="addInlineRxRow()">➕ Add Medicine Line</button>
-                            </div>
-
-                            <!-- Diagnostic Lab Referrals -->
-                            <div style="text-align:left;">
-                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">🧪 Lab Test Referrals</label>
-                                <div class="rx-tests-grid" style="margin-top:4px;">
-                                    <label><input type="checkbox" id="inline-test-cbc"> CBC Count</label>
-                                    <label><input type="checkbox" id="inline-test-xray"> Chest X-Ray</label>
-                                    <label><input type="checkbox" id="inline-test-ecg"> ECG</label>
+                            <!-- Real Pharmacy Rx List -->
+                            <div style="margin-bottom:14px;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">💊 Rx Medications Prescribed</label>
+                                <div class="ehr-rx-card-list" id="inline-rx-card-list">
+                                    <div class="ehr-rx-card">
+                                        <div>
+                                            <div class="ehr-rx-title">💊 Paracetamol 500mg</div>
+                                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Tablet • 5 Days • After Meals</div>
+                                        </div>
+                                        <span class="ehr-rx-dose-tag">1-0-1 BD</span>
+                                    </div>
+                                    <div class="ehr-rx-card">
+                                        <div>
+                                            <div class="ehr-rx-title">💊 Cetirizine 10mg</div>
+                                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Tablet • 5 Days • At Bedtime</div>
+                                        </div>
+                                        <span class="ehr-rx-dose-tag">0-0-1 HS</span>
+                                    </div>
                                 </div>
+                            </div>
+
+                            <!-- Diagnostic Lab Orders -->
+                            <div style="margin-bottom:14px;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">🧪 Diagnostic Lab Referrals</label>
+                                <div class="rx-tests-grid" style="margin-top:6px;">
+                                    <label><input type="checkbox" id="inline-test-cbc"> CBC Blood Count</label>
+                                    <label><input type="checkbox" id="inline-test-xray"> Chest X-Ray PA</label>
+                                    <label><input type="checkbox" id="inline-test-ecg"> ECG 12-Lead</label>
+                                </div>
+                            </div>
+
+                            <!-- Digital Signature Stamp -->
+                            <div class="ehr-signature-stamp">
+                                <span>✍️ Electronically Signed by <strong>Dr. Sarah Sharma, M.D.</strong></span>
+                                <span style="color:var(--accent-emerald);">✓ Encrypted Telemetry Record Transmitted</span>
                             </div>
                         </div>
                     `;
@@ -1678,63 +1860,86 @@
                 tbody.appendChild(tr);
             };
 
+            window.toggleSymptomChip = function(el, text) {
+                el.classList.toggle('active');
+                let obsInput = document.getElementById('inline-obs');
+                if (!obsInput) return;
+                let current = obsInput.value.trim();
+                if (el.classList.contains('active')) {
+                    obsInput.value = current ? `${current}, ${text}` : text;
+                } else {
+                    obsInput.value = current.replace(text, '').replace(/^,\s*|\s*,\s*$/g, '');
+                }
+            };
+
             window.applyPreset = function(type) {
-                let tbody = document.getElementById('inline-rx-tbody');
+                let cardList = document.getElementById('inline-rx-card-list');
                 let diagInput = document.getElementById('inline-diag');
                 let obsInput = document.getElementById('inline-obs');
-                if (!tbody) return;
 
                 if (type === 'FEVER') {
                     if (diagInput) diagInput.value = "Acute Upper Respiratory Infection & Fever";
-                    if (obsInput) obsInput.value = "Mild throat redness, body ache, temp 99.1°F, lungs clear";
-                    tbody.innerHTML = `
-                        <tr>
-                            <td><input type="text" value="Paracetamol 500mg"></td>
-                            <td><select><option selected>1-0-1 (BD)</option><option>1-1-1 (TDS)</option></select></td>
-                            <td><input type="text" value="5 Days"></td>
-                            <td><select><option selected>After Food</option></select></td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="Cetirizine 10mg"></td>
-                            <td><select><option selected>0-0-1 (HS)</option></select></td>
-                            <td><input type="text" value="5 Days"></td>
-                            <td><select><option selected>Before Bed</option></select></td>
-                        </tr>
-                    `;
+                    if (obsInput) obsInput.value = "Throat redness & difficulty swallowing, Mild fever for 2 days";
+                    if (cardList) {
+                        cardList.innerHTML = `
+                            <div class="ehr-rx-card">
+                                <div>
+                                    <div class="ehr-rx-title">💊 Paracetamol 500mg</div>
+                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Tablet • 5 Days • After Meals</div>
+                                </div>
+                                <span class="ehr-rx-dose-tag">1-0-1 BD</span>
+                            </div>
+                            <div class="ehr-rx-card">
+                                <div>
+                                    <div class="ehr-rx-title">💊 Cetirizine 10mg</div>
+                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Tablet • 5 Days • At Bedtime</div>
+                                </div>
+                                <span class="ehr-rx-dose-tag">0-0-1 HS</span>
+                            </div>
+                        `;
+                    }
                 } else if (type === 'GASTRIC') {
                     if (diagInput) diagInput.value = "Acute Gastritis & Acid Reflux";
-                    if (obsInput) obsInput.value = "Epigastric tenderness, bloating after meals";
-                    tbody.innerHTML = `
-                        <tr>
-                            <td><input type="text" value="Pantoprazole 40mg"></td>
-                            <td><select><option selected>1-0-0 (OD)</option></select></td>
-                            <td><input type="text" value="7 Days"></td>
-                            <td><select><option selected>Before Food (Morning)</option></select></td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="Antacid Syrup 10ml"></td>
-                            <td><select><option selected>1-1-1 (TDS)</option></select></td>
-                            <td><input type="text" value="5 Days"></td>
-                            <td><select><option selected>After Food</option></select></td>
-                        </tr>
-                    `;
+                    if (obsInput) obsInput.value = "Epigastric tenderness, abdominal bloating after meals";
+                    if (cardList) {
+                        cardList.innerHTML = `
+                            <div class="ehr-rx-card">
+                                <div>
+                                    <div class="ehr-rx-title">💊 Pantoprazole 40mg</div>
+                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Tablet • 7 Days • Before Food (Morning)</div>
+                                </div>
+                                <span class="ehr-rx-dose-tag">1-0-0 OD</span>
+                            </div>
+                            <div class="ehr-rx-card">
+                                <div>
+                                    <div class="ehr-rx-title">💊 Antacid Syrup 10ml</div>
+                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Liquid • 5 Days • After Meals</div>
+                                </div>
+                                <span class="ehr-rx-dose-tag">1-1-1 TDS</span>
+                            </div>
+                        `;
+                    }
                 } else if (type === 'INFECTION') {
-                    if (diagInput) diagInput.value = "Bacterial Infection / Tonsillitis";
-                    if (obsInput) obsInput.value = "Exudative tonsils, neck lymph nodes palpable";
-                    tbody.innerHTML = `
-                        <tr>
-                            <td><input type="text" value="Amoxicillin 500mg"></td>
-                            <td><select><option selected>1-0-1 (BD)</option></select></td>
-                            <td><input type="text" value="5 Days"></td>
-                            <td><select><option selected>After Food</option></select></td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="Paracetamol 500mg"></td>
-                            <td><select><option selected>1-0-1 (BD)</option></select></td>
-                            <td><input type="text" value="5 Days"></td>
-                            <td><select><option selected>After Food</option></select></td>
-                        </tr>
-                    `;
+                    if (diagInput) diagInput.value = "Bacterial Tonsillitis / Respiratory Infection";
+                    if (obsInput) obsInput.value = "Throat redness & difficulty swallowing, Exudative tonsils";
+                    if (cardList) {
+                        cardList.innerHTML = `
+                            <div class="ehr-rx-card">
+                                <div>
+                                    <div class="ehr-rx-title">💊 Amoxicillin 500mg</div>
+                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Capsule • 5 Days • After Meals</div>
+                                </div>
+                                <span class="ehr-rx-dose-tag">1-0-1 BD</span>
+                            </div>
+                            <div class="ehr-rx-card">
+                                <div>
+                                    <div class="ehr-rx-title">💊 Paracetamol 500mg</div>
+                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Oral Tablet • 5 Days • After Meals</div>
+                                </div>
+                                <span class="ehr-rx-dose-tag">1-0-1 BD</span>
+                            </div>
+                        `;
+                    }
                 }
             };
 
