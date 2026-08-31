@@ -684,6 +684,56 @@
             transition: all 0.2s;
         }
         .btn-open-rx-trigger:hover { background: var(--accent-cyan); color: #000; }
+
+        /* INLINE CLINICAL SUITE STYLES */
+        .inline-rx-container {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(6, 182, 212, 0.25);
+            border-radius: 16px;
+            padding: 18px;
+            margin-top: 16px;
+            width: 100%;
+        }
+
+        .inline-vitals-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            align-items: center;
+        }
+
+        .mini-vital-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--card-border);
+            color: var(--accent-cyan);
+            width: 70px;
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .btn-preset-pill {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: var(--accent-amber);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 6px;
+        }
+        .btn-preset-pill:hover { background: var(--accent-amber); color: #000; }
     </style>
 </head>
 <body>
@@ -1187,21 +1237,90 @@
                     dom.activeContent.innerHTML = `
                         <span class="token-hero-badge">${ds.activePatient.token}</span>
                         <h1 class="patient-hero-name">${ds.activePatient.name}</h1>
-                        <div class="patient-hero-badges">
+                        <div class="patient-hero-badges" style="margin-bottom:14px;">
                             <span class="h-badge">${ds.activePatient.type === 'APP' ? '📱 App' : (ds.activePatient.type === 'VIP' ? '👑 VIP' : (ds.activePatient.type === 'EMERGENCY' ? '🚨 Emergency' : '📋 Walk-in'))}</span>
                             <span class="h-badge">✓ Verified in Lobby</span>
                         </div>
-                        <div>
-                            <button class="btn-open-rx-trigger" id="btn-open-rx">📝 Open E-Prescription Pad & Clinical Notes</button>
+
+                        <!-- SEAMLESS INLINE CLINICAL SUITE -->
+                        <div class="inline-rx-container">
+                            <!-- Vitals Bar -->
+                            <div class="inline-vitals-row">
+                                <span>🩺 <strong>BP:</strong> <input type="text" value="120/80" class="mini-vital-input"></span>
+                                <span>💓 <strong>Pulse:</strong> <input type="text" value="72" class="mini-vital-input"> bpm</span>
+                                <span>🌡️ <strong>Temp:</strong> <input type="text" value="98.6" class="mini-vital-input"> °F</span>
+                                <span>💨 <strong>SpO2:</strong> <input type="text" value="99%" class="mini-vital-input"></span>
+                                <span>⚖️ <strong>Weight:</strong> <input type="text" value="68" class="mini-vital-input"> kg</span>
+                            </div>
+
+                            <!-- Doctor Observations -->
+                            <div style="margin-bottom:10px; text-align:left;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">👁️ Doctor Observations & Physical Findings</label>
+                                <input type="text" class="rx-input-full" id="inline-obs" placeholder="Type doctor's observations (e.g. Throat redness, mild fever for 2 days, clear lung sounds)...">
+                            </div>
+
+                            <!-- Diagnosis -->
+                            <div style="margin-bottom:10px; text-align:left;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">📋 Clinical Diagnosis</label>
+                                <input type="text" class="rx-input-full" id="inline-diag" placeholder="e.g. Acute Upper Respiratory Tract Infection">
+                            </div>
+
+                            <!-- 1-Click Fast Presets -->
+                            <div style="margin-bottom:10px; text-align:left;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-amber); text-transform:uppercase;">⚡ 1-Click Presets: </label>
+                                <button class="btn-preset-pill" onclick="applyPreset('FEVER')">FEVER & COLD</button>
+                                <button class="btn-preset-pill" onclick="applyPreset('GASTRIC')">GASTRIC</button>
+                                <button class="btn-preset-pill" onclick="applyPreset('INFECTION')">INFECTION</button>
+                            </div>
+
+                            <!-- Rx Medication Table -->
+                            <div style="margin-bottom:10px; text-align:left;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">💊 Rx Medications</label>
+                                <table class="rx-med-table" style="margin-top:4px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Medicine Name</th>
+                                            <th>Dosage</th>
+                                            <th>Duration</th>
+                                            <th>Instructions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inline-rx-tbody">
+                                        <tr>
+                                            <td><input type="text" value="Paracetamol 500mg"></td>
+                                            <td>
+                                                <select>
+                                                    <option selected>1-0-1 (BD)</option>
+                                                    <option>1-1-1 (TDS)</option>
+                                                    <option>0-0-1 (HS)</option>
+                                                    <option>1-0-0 (OD)</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" value="5 Days"></td>
+                                            <td>
+                                                <select>
+                                                    <option selected>After Food</option>
+                                                    <option>Before Food</option>
+                                                    <option>With Water</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button class="btn-add-rx-row" onclick="addInlineRxRow()">➕ Add Medicine Line</button>
+                            </div>
+
+                            <!-- Diagnostic Lab Referrals -->
+                            <div style="text-align:left;">
+                                <label style="font-size:11px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase;">🧪 Lab Test Referrals</label>
+                                <div class="rx-tests-grid" style="margin-top:4px;">
+                                    <label><input type="checkbox" id="inline-test-cbc"> CBC Count</label>
+                                    <label><input type="checkbox" id="inline-test-xray"> Chest X-Ray</label>
+                                    <label><input type="checkbox" id="inline-test-ecg"> ECG</label>
+                                </div>
+                            </div>
                         </div>
                     `;
-
-                    setTimeout(() => {
-                        let btnRx = document.getElementById('btn-open-rx');
-                        if (btnRx) {
-                            btnRx.onclick = openRxModal;
-                        }
-                    }, 50);
 
                     if (ds.pendingBreakMins > 0) {
                         dom.btnCallNext.className = 'btn-doctor-primary break-mode';
@@ -1532,6 +1651,92 @@
                     if (btnCall) btnCall.click();
                 };
             }
+
+            window.addInlineRxRow = function() {
+                let tbody = document.getElementById('inline-rx-tbody');
+                if (!tbody) return;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" placeholder="e.g. Amoxicillin 500mg"></td>
+                    <td>
+                        <select>
+                            <option>1-0-1 (BD)</option>
+                            <option>1-1-1 (TDS)</option>
+                            <option>0-0-1 (HS)</option>
+                            <option>1-0-0 (OD)</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="5 Days"></td>
+                    <td>
+                        <select>
+                            <option>After Food</option>
+                            <option>Before Food</option>
+                            <option>With Water</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            };
+
+            window.applyPreset = function(type) {
+                let tbody = document.getElementById('inline-rx-tbody');
+                let diagInput = document.getElementById('inline-diag');
+                let obsInput = document.getElementById('inline-obs');
+                if (!tbody) return;
+
+                if (type === 'FEVER') {
+                    if (diagInput) diagInput.value = "Acute Upper Respiratory Infection & Fever";
+                    if (obsInput) obsInput.value = "Mild throat redness, body ache, temp 99.1°F, lungs clear";
+                    tbody.innerHTML = `
+                        <tr>
+                            <td><input type="text" value="Paracetamol 500mg"></td>
+                            <td><select><option selected>1-0-1 (BD)</option><option>1-1-1 (TDS)</option></select></td>
+                            <td><input type="text" value="5 Days"></td>
+                            <td><select><option selected>After Food</option></select></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="Cetirizine 10mg"></td>
+                            <td><select><option selected>0-0-1 (HS)</option></select></td>
+                            <td><input type="text" value="5 Days"></td>
+                            <td><select><option selected>Before Bed</option></select></td>
+                        </tr>
+                    `;
+                } else if (type === 'GASTRIC') {
+                    if (diagInput) diagInput.value = "Acute Gastritis & Acid Reflux";
+                    if (obsInput) obsInput.value = "Epigastric tenderness, bloating after meals";
+                    tbody.innerHTML = `
+                        <tr>
+                            <td><input type="text" value="Pantoprazole 40mg"></td>
+                            <td><select><option selected>1-0-0 (OD)</option></select></td>
+                            <td><input type="text" value="7 Days"></td>
+                            <td><select><option selected>Before Food (Morning)</option></select></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="Antacid Syrup 10ml"></td>
+                            <td><select><option selected>1-1-1 (TDS)</option></select></td>
+                            <td><input type="text" value="5 Days"></td>
+                            <td><select><option selected>After Food</option></select></td>
+                        </tr>
+                    `;
+                } else if (type === 'INFECTION') {
+                    if (diagInput) diagInput.value = "Bacterial Infection / Tonsillitis";
+                    if (obsInput) obsInput.value = "Exudative tonsils, neck lymph nodes palpable";
+                    tbody.innerHTML = `
+                        <tr>
+                            <td><input type="text" value="Amoxicillin 500mg"></td>
+                            <td><select><option selected>1-0-1 (BD)</option></select></td>
+                            <td><input type="text" value="5 Days"></td>
+                            <td><select><option selected>After Food</option></select></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="Paracetamol 500mg"></td>
+                            <td><select><option selected>1-0-1 (BD)</option></select></td>
+                            <td><input type="text" value="5 Days"></td>
+                            <td><select><option selected>After Food</option></select></td>
+                        </tr>
+                    `;
+                }
+            };
 
             // Real-Time Render Poller (100ms)
             setInterval(() => {
