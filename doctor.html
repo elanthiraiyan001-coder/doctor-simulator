@@ -785,6 +785,31 @@
 
             function getInitialDefaultState() {
                 let s = 31200; // EXACT START TIME: 08:40:00 AM (31200s)
+                let actSec = 10 * 60; // 10 mins baseline
+
+                let sampleNames = [
+                    'Rajesh Kumar', 'Ananya Roy', 'Suresh Patel', 'Kavita Singh', 'Deepak Verma',
+                    'Vikram Malhotra', 'Sneha Reddy', 'Amit Sharma', 'Pooja Gupta', 'Rohan Iyer',
+                    'Neha Joshi', 'Sanjay Kumar', 'Ritu Agarwal', 'Manish Choudhary', 'Swati Nair',
+                    'Tarun Saxena', 'Divya Pillai', 'Varun Kapoor', 'Meera Bose', 'Elan (Test Patient)'
+                ];
+
+                let pList = [];
+                for (let i = 0; i < 20; i++) {
+                    let eta = (9.0 * 3600) + (i * actSec); // ETAs start 09:00 AM, 09:10 AM, ...
+                    let rep = eta - (20 * 60); // 20m lead window -> 08:40 AM, 08:50 AM, ...
+                    pList.push({
+                        token: `P-${i+1}`,
+                        name: sampleNames[i],
+                        type: 'APP',
+                        reportingSec: rep,
+                        etaSec: eta,
+                        status: 'EN_ROUTE',
+                        strike: 0,
+                        prio: 'REGULAR'
+                    });
+                }
+
                 return {
                     simBaseTime: s,
                     realBaseTimestamp: Date.now(),
@@ -805,15 +830,8 @@
                         delayMins: 0,
                         pendingVIPAlert: null
                     },
-                    patients: [
-                        { token: 'P-1', name: 'Rajesh Kumar', type: 'APP', reportingSec: s, etaSec: s + 20*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
-                        { token: 'P-2', name: 'Ananya Roy', type: 'APP', reportingSec: s + 10*60, etaSec: s + 30*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
-                        { token: 'P-3', name: 'Suresh Patel', type: 'APP', reportingSec: s + 20*60, etaSec: s + 40*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
-                        { token: 'P-4', name: 'Kavita Singh', type: 'APP', reportingSec: s + 30*60, etaSec: s + 50*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
-                        { token: 'P-ELAN', name: 'Elan (Test Patient)', type: 'APP', reportingSec: s + 40*60, etaSec: s + 60*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' },
-                        { token: 'P-5', name: 'Deepak Verma', type: 'APP', reportingSec: s + 50*60, etaSec: s + 70*60, status: 'EN_ROUTE', strike: 0, prio: 'REGULAR' }
-                    ],
-                    walkinCounter: 5,
+                    patients: pList,
+                    walkinCounter: 1,
                     emergencyCounter: 1,
                     vipCounter: 1,
                     lastUpdated: Date.now()
@@ -825,7 +843,12 @@
             function loadState() {
                 try {
                     let raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) return JSON.parse(raw);
+                    if (raw) {
+                        let parsed = JSON.parse(raw);
+                        if (parsed && Array.isArray(parsed.patients) && parsed.patients.length > 0) {
+                            return parsed;
+                        }
+                    }
                 } catch(e) {}
                 let def = getInitialDefaultState();
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(def));
