@@ -1105,7 +1105,7 @@
     <!-- UNIFIED WALL-CLOCK SHARED ENGINE WITH 3 CONSECUTIVE PATIENT SAMPLE ROLLING ACT ENGINE -->
     <script>
         (function() {
-            const STORAGE_KEY = 'VELORA_OPD_SHARED_STATE_V13';
+            const STORAGE_KEY = 'VELORA_OPD_SHARED_STATE_V14';
 
             function getInitialDefaultState() {
                 let s = 31200; // EXACT START TIME: 08:40:00 AM (31200s)
@@ -1949,11 +1949,18 @@
                 }
             };
 
-            // Real-Time Render Poller (100ms)
+            // Real-Time Render Poller (100ms) - Renders active in-memory state cleanly
             setInterval(() => {
-                state = loadState();
                 render();
             }, 100);
+
+            // Cross-Tab / Cross-Window Synchronization Listener
+            window.addEventListener('storage', (e) => {
+                if (e.key === STORAGE_KEY) {
+                    state = loadState();
+                    render();
+                }
+            });
 
             render();
         })();
